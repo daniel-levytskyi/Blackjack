@@ -53,17 +53,46 @@ class Startup(ctk.CTk):
         self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", command=self.destroy, width=200, height=60, font=("Arial", 30), **self.button_style)
         self.exit_button.pack(pady=20, padx=10, side="bottom")
 
+        self.blackjack_label = ctk.CTkLabel(self.content_frame, text="Levytskyi's Blackjack", font=("Helvetica", 70, "bold"), text_color="#D4AF37")
+        self.blackjack_label.pack(expand=True)
+
+    def open_loss_window(self):
+        window = ctk.CTkToplevel(self)
+        window.geometry("300x100")
+        window.title("You have lost...")
+        loss_window = ctk.CTkFrame(window, corner_radius=0, fg_color="#145A32")
+        loss_window.pack(fill="both", expand=True)
+        loss_message = ctk.CTkLabel(loss_window, text="The House always wins.", font=("Arial", 20, "bold"), text_color="#D4AF37")
+        loss_message.pack(expand=True)
+        loss_message2 = ctk.CTkLabel(loss_window, text="You have been reset.", font=("Arial", 20, "bold"), text_color="#D4AF37")
+        loss_message2.pack(expand=True)
+        continue_button = ctk.CTkButton(loss_window, text="Continue", command=window.destroy, **self.button_style)
+        continue_button.pack(expand=True)
+
     def load_bets(self):
-        self.bet_text = ctk.CTkLabel(self.content_frame, text="Place your bet:", text_color="#F8F8FF")
-        self.bet_box = ctk.CTkEntry(self.content_frame)
-        self.complete_bet = ctk.CTkButton(self.content_frame, text="Done", command=self.check_bets, **self.button_style)
-        self.invalid_text = ctk.CTkLabel(self.content_frame, text="", text_color="#D4AF37")
-        self.money_text = ctk.CTkLabel(self.content_frame, text=f"Current money: ${self.money}", font=("Helvetica", 50), text_color="#D4AF37")
-        self.bet_text.pack(pady=10, padx=10)
-        self.bet_box.pack(pady=10, padx=10)
-        self.complete_bet.pack(pady=10, padx=10)
-        self.invalid_text.pack(pady=10, padx=10)
-        self.money_text.pack(side="bottom")
+        if self.money <= 0:
+            self.open_loss_window()
+            print("The house always wins.")
+            print("You have been reset.")
+            self.money = 1000
+            for widget in self.content_frame.winfo_children():
+                widget.destroy()
+            for option in self.sidebar.winfo_children():
+                option.destroy()
+            self.create_widgets()
+        else:
+            for widget in self.content_frame.winfo_children():
+                widget.destroy()
+            self.bet_text = ctk.CTkLabel(self.content_frame, text="Place your bet:", text_color="#F8F8FF", font=("Arial", 50, "bold"))
+            self.bet_box = ctk.CTkEntry(self.content_frame)
+            self.complete_bet = ctk.CTkButton(self.content_frame, text="Done", command=self.check_bets, **self.button_style)
+            self.invalid_text = ctk.CTkLabel(self.content_frame, text="", text_color="#D4AF37")
+            self.money_text = ctk.CTkLabel(self.content_frame, text=f"Current money: ${self.money}", font=("Helvetica", 50), text_color="#D4AF37")
+            self.bet_text.pack(pady=10, padx=10)
+            self.bet_box.pack(pady=10, padx=10)
+            self.complete_bet.pack(pady=10, padx=10)
+            self.invalid_text.pack(pady=10, padx=10)
+            self.money_text.pack(side="bottom", expand=True)
 
     def deal_card(self, hand, frame, hide=False):
         card = self.deck.pop()
